@@ -7,27 +7,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Generate App Icon and Download Cyrillic Font
+      - name: Install System Dependencies
         run: |
-          pip install pillow
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git zip unzip openjdk-17-jdk \
+            autoconf libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo5 \
+            cmake libffi-dev libssl-dev automake \
+            fonts-dejavu-core
+
+      - name: Generate Icon and Copy Font
+        run: |
+          pip install --upgrade pip
+          pip install pillow "cython<3.0" buildozer
           python make_icon.py
           cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf ./DejaVuSans.ttf
 
       - name: Build APK with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
+        run: |
+          yes | buildozer android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
