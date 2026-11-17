@@ -25,18 +25,18 @@ jobs:
             autoconf libtool pkg-config zlib1g-dev \
             libncurses5-dev libncursesw5-dev libtinfo5 \
             cmake libffi-dev libssl-dev automake \
-            fonts-dejavu-core
+            libltdl-dev fonts-dejavu-core
 
       - name: Generate Icon and Copy Font
         run: |
           pip install --upgrade pip
-          pip install pillow "cython<3.0" buildozer
+          pip install pillow "cython<3.0" git+https://github.com/kivy/buildozer.git@master
           python make_icon.py
           cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf ./DejaVuSans.ttf
 
       - name: Build APK with Buildozer
         run: |
-          yes | buildozer android debug
+          yes | buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
